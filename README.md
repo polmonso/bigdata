@@ -54,6 +54,9 @@ construct: foo = list(3)
 slice: foo[1] -> dataframe-like  [[1]] [1] 3
 get element: foo[[1]] -> 3
 
+taula$capture_rate és equivalent a taula[['capture_rate']]
+
+
 util functions
 ---------------
 
@@ -66,3 +69,44 @@ is.list()
 ```r
 foo[['name']] is equivalent to foo$name
 ```
+
+_io_
+
+read_csv2 és el read_csv europeu
+read_delim() per més control
+
+```r
+read_delim(
+  "foo.csv",
+  delim = ';',
+  escape_double = FALSE,
+  locale = locale(decimal_mark=',', grouping_mark='.'),
+  guess_max = 1912, # forçar que miri fins a la fila 1912 per decidir column type
+  trim_ws = TRUE
+)
+```
+
+problems(data) # t'indica discrepancies entre expected i actual de columnes type
+
+View(taula) a RStudio t'ensenya la taula interactiva
+flimpse(taula)
+
+preguntes per resoldre
+======================
+
+Taula és un tipus? Quin?
+
+summarise(group_by(obres, tipus_local, n = n())) és equivalent a count(obres, Tipus_local)
+
+
+proportions within a group:
+
+mutate(group_by(birthwt_tab, smoke) p = n/sum(n))
+
+gives
+
+smoke low n p
+0 0 86 0.748
+0 1 29 0.252
+1 0 44 0.595
+1 1 30 0.405
