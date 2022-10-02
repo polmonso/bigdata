@@ -152,12 +152,14 @@ mutate(group_by(birthwt_tab, smoke) p = n/sum(n))
 
 gives
 
+```
 smoke low n p
 0 0 86 0.748
 0 1 29 0.252
 1 0 44 0.595
 1 1 30 0.405
 is.na()
+```
 
 _summarise_
 
