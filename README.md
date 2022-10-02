@@ -42,20 +42,21 @@ logic
 foo[1:5 < 3] = ab
 ```
 
-Label elements to access by name
+_Label elements to access by name_
+
 x=1:12
 names(x) = month.abb
 
 then
 x['Jan'] -> 1
 
-lists
+_lists_
+
 construct: foo = list(3)
 slice: foo[1] -> dataframe-like  [[1]] [1] 3
 get element: foo[[1]] -> 3
 
 taula$capture_rate és equivalent a taula[['capture_rate']]
-
 
 util functions
 ---------------
@@ -89,15 +90,61 @@ read_delim(
 problems(data) # t'indica discrepancies entre expected i actual de columnes type
 
 View(taula) a RStudio t'ensenya la taula interactiva
-flimpse(taula)
+glimpse(taula)
 
-preguntes per resoldre
-======================
 
-Taula és un tipus? Quin?
+piping
+------
 
-summarise(group_by(obres, tipus_local, n = n())) és equivalent a count(obres, Tipus_local)
+flights %>%
+  filter(month == 1, day == 1) %>%
+  arrange(dep_delay)
 
+dplyr
+-----
+
+_slice_
+
+slice()
+slice_head(flights, n = 10)
+slice_head(flights, prop = 0.00003)
+slice_sample(flights, n = 100)
+distinct(flights, origin)
+
+_arrange_
+
+reordenacions
+
+```r
+arrange(flights, year, month, day, desc(dep_delay)) # podem posar diversos criteris un després de l'altre
+arrange(flights, !is.na(dep_delay)) # accepta funcions
+```
+
+_select_
+
+pot seleccionar per noms de columnes, condicions de les files... Conditions are OR-interesected
+select(filghts, starts_with('dep_'), contains('arr_'), -arr_time)
+
+other selecting functions:
+contains, matches (regex), all_of, any_of, starts_with, ends_with
+
+_filter_
+
+filter(flights, is.na(dep_time))
+
+_mutate_
+afegir columnes derivades al dataframe
+
+```r
+mutate(
+    select(flights, distance, air_time),
+    distance_km = distance * 1.60934,
+    air_time_h = air_time / 60,
+    speed_km_h = distance_km/air_time_h
+)
+```
+
+`transmute` if we don't want to keep the source columns
 
 proportions within a group:
 
@@ -110,3 +157,35 @@ smoke low n p
 0 1 29 0.252
 1 0 44 0.595
 1 1 30 0.405
+is.na()
+
+_summarise_
+
+agrupacions sobre totes les files que colapsen a un resultat
+
+agrupacions possibles: n (aka count), n_distinct, first, nth, last (dyplr) i les matemàtiques mean, sum ...
+i **group_by**
+
+
+summarise(
+    flights,
+    average_dep_delay = mean(dep_delay, na.rm=TRUE)
+    average_arr_delay = mean(arr_delay, na.rm=TRUE)
+)
+
+summarise(group_by(obres, tipus_local, n = n())) és equivalent a count(obres, Tipus_local)
+
+_joins_
+
+canceled_day = group_by(filter(flights, is.na(dep_delay) | is.na(arr_delay)), year, month, day), n_canceled = n())
+total_day = summarize(group_by(flights, year, month ,day), n_total = n())
+
+mutate(
+    inner_join(canceled_day, total_day),
+    p_canceled = n_canceled / n_total
+)
+
+preguntes per resoldre
+======================
+
+Taula és un tipus? Quin?
