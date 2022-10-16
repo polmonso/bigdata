@@ -15,14 +15,23 @@ knitr::opts_chunk$set(echo=TRUE, warning=TRUE, error=TRUE)
 Install dependencies
 ```{r, message=FALSE}
 require('tidyverse')
+require('dplyr')
 require('ggplot2')
 require('treemapify')
 require('rgdal')
+require('sf')
+require('RColorBrewer')
+require('classInt')
 
+library(readr)
 library(tidyverse)
+library(dplyr)
 library(ggplot2)
 library(treemapify)
 library(rgdal)
+library(sf)
+library(RColorBrewer)
+library(classInt)
 ```
 
 Create a script to download information related to the register of
@@ -30,23 +39,28 @@ inhabitants during 2020, and save the table in a file called
 padro_2020.RData.
 
 ```{r}
-csv_url = "https://terra.girona.cat/opendata/storage/f/2021-04-19T07%3A52%3A25.797Z/padro-2021.csv"
-data = read_csv2(csv_url, col_types = cols(districte = "c", seccio = "c"))
-save(data, file="data/padro_2020.RData")
+#filename = "data/padro_2020.RData"
+filename = "data/padro_2020.csv"
+if(!file.exists(filename)){
+  csv_url = "https://terra.girona.cat/opendata/storage/f/2021-04-19T07%3A52%3A25.797Z/padro-2021.csv"
+  data = read_csv2(csv_url, col_types = cols(districte = "c", seccio = "c"))
+  #save(data, file=filename)
+  write.csv2(data, filename)
+} else {
+  #data = load(filename)
+  data = read_csv2(filename, col_types = cols(districte = "c", seccio = "c"))
+}
 ```
 Get the districts shapefile
-```{r}
-girona_shp_zip = 'https://terra.girona.cat/opendata/storage/f/2014-07-31T06%3A08%3A39.903Z/barris.zip'
-download.file(girona_shp_zip , destfile="data/girona_shp.zip")
-unzip("data/girona_shp.zip", exdir='data/girona_shp')
-```
 
 ```{r}
-require('rgdal')
-my_spdf <- read_sf( 
-  dsn="./data/girona_shp/" , 
-  verbose=FALSE
-)
+shapefile = 'data/Barris.shp'
+if(!file.exists(shapefile)){
+  destfile = "data/girona_shp.zip"
+  girona_shp_zip = 'https://terra.girona.cat/opendata/storage/f/2014-07-31T06%3A08%3A39.903Z/barris.zip'
+  download.file(girona_shp_zip , destfile=destfile)
+  unzip(destfile, exdir='data/girona_shp')
+}
 ```
 
 Summarise the variable study levels (nivell_estudis). What are the most
@@ -111,17 +125,29 @@ dist_estudis = summarize(group_by(data_adults, districte), superiors = round(100
 dist_estudis
 ```
 
-```{r}
-ggplot(dist_estudis, aes(area = superiors, fill = superiors, label = districte)) +
-  geom_treemap() +
-  geom_treemap_text(colour = "white",
-                    place = "centre",
-                    size = 12,
-                    grow = TRUE)
-```
+Visualització en forma de barres
+
 ```{r}
 ggplot(dist_estudis, aes(x=districte, y=superiors, labels=districte)) +
   geom_segment( aes(x=districte, xend=districte, y=0, yend=superiors)) +
   geom_point( size=3, color="red", fill=alpha("brown", 0.3), alpha=0.7, shape=21, stroke=2) +
   theme_minimal()
 ```
+
+Visualització en forma de mapa
+
+```{r}
+nclr = 9
+plotclr = brewer.pal(nclr,"BuPu")
+class = classIntervals(pull(dist_estudis), nclr, style="equal")
+colcode = findColours(class, plotclr)
+
+orgirona_sf = st_read(shapefile)
+title = "Nivell d'estudis per districte"
+subtitle = "Percentatge sobre el total de població del districte"
+plot(orgirona_sf['BARRIS'], col=colcode, main=NULL)
+title(main=title, sub=subtitle)
+legend("bottomright", legend=names(attr(colcode, "table")),
+       fill=attr(colcode, "palette"), cex=1.0, bty="n")
+```
+
