@@ -12,7 +12,8 @@ editor_options:
 knitr::opts_chunk$set(echo=TRUE, warning=TRUE, error=TRUE)
 ```
 
-Install dependencies
+## Install dependencies
+
 ```{r, message=FALSE}
 require('tidyverse')
 require('dplyr')
@@ -22,6 +23,9 @@ require('rgdal')
 require('sf')
 require('RColorBrewer')
 require('classInt')
+require('maptools') 
+
+
 
 library(readr)
 library(tidyverse)
@@ -32,75 +36,93 @@ library(rgdal)
 library(sf)
 library(RColorBrewer)
 library(classInt)
+library(maptools)
 ```
 
-Create a script to download information related to the register of
-inhabitants during 2020, and save the table in a file called
-padro_2020.RData.
+## Create a script to download information related to the register of inhabitants during 2020, and save the table in a file called padro_2020.RData
 
 ```{r}
-#filename = "data/padro_2020.RData"
-filename = "data/padro_2020.csv"
+filename = "data/padro_2020.RData"
+csv_filename = "data/padro_2020.csv"
 if(!file.exists(filename)){
   csv_url = "https://terra.girona.cat/opendata/storage/f/2021-04-19T07%3A52%3A25.797Z/padro-2021.csv"
   data = read_csv2(csv_url, col_types = cols(districte = "c", seccio = "c"))
-  #save(data, file=filename)
-  write.csv2(data, filename)
+  save(data, file=filename)
+  #write.csv2(data, filename)
 } else {
-  #data = load(filename)
-  data = read_csv2(filename, col_types = cols(districte = "c", seccio = "c"))
+  load(filename)
+  #data = read_csv2(filename, col_types = cols(districte = "c", seccio = "c"))
 }
 ```
-Get the districts shapefile
+
+Descarregarem el shapefile dels barris per dibuixar mapes...
 
 ```{r}
-shapefile = 'data/Barris.shp'
+shapefile = 'data/girona_shp/Barris.shp'
 if(!file.exists(shapefile)){
   destfile = "data/girona_shp.zip"
-  girona_shp_zip = 'https://terra.girona.cat/opendata/storage/f/2014-07-31T06%3A08%3A39.903Z/barris.zip'
+  girona_shp_zip = 'https://terra.girona.cat/opendata/storage/f/2021-06-28T10%3A49%3A46.540Z/seccions.zip'
   download.file(girona_shp_zip , destfile=destfile)
   unzip(destfile, exdir='data/girona_shp')
 }
 ```
 
-Summarise the variable study levels (nivell_estudis). What are the most
-common levels?
+Malauradament els barris no coincideixen amb els districtes :(
+
+Haurem de baixar-nos les seccions censals.
 
 ```{r}
-arrange(summarize(group_by(data, nivell_estudis), popularitat = 100*n()/count(data)), desc(popularitat))
+shapefile = 'data/girona_seccions_shp/Seccions.shp'
+if(!file.exists(shapefile)){
+  destfile = "data/girona_seccions_shp.zip"
+  girona_shp_zip = 'https://terra.girona.cat/opendata/storage/f/2021-06-28T10%3A49%3A46.540Z/seccions.zip'
+  download.file(girona_shp_zip , destfile=destfile)
+  unzip(destfile, exdir='data/girona_seccions_shp')
+}
 ```
 
-Summarise the average age within district (districte).
+La shapefile per seccions és massa granularitzada: les seccions conformen els districtes. Quan fem el mapa les unirem.
+
+## Summarise the variable study levels (nivell_estudis). What are the most common levels?
+
+```{r}
+arrange(summarize(group_by(data, nivell_estudis), popularitat = as.numeric(100*n()/count(data))), desc(popularitat))
+```
+
+La majoria de la població no ha passat a estudis superiors. Per sort, el tant per cent de gent que no ha estat escolaritzada és força baix, tot i que segueix sent massa tenint en compte que l'educació secundària és obligatòria.
+
+## Summarise the average age within district (districte).
 
 ```{r}
 summarize(group_by(data, districte), edat_mitja = mean(as.integer(format(Sys.Date(), "%Y")) - data_naixement))
 ```
 
-Summarise the proportion of population with superior level studies in
-each district.
+Com era d'esperar, l'edat mitja està força uniformament repartida entre els districtes. Tot i que potser podríem trobar una certa preferència a la perifèria a mida que augmenta l'edat.
 
-## Obtenim la llista d'estudis
+Com que l'edat està força uniformament repartida, l'anàlisi del nivell d'estudis no es veurà gaire esbiaixat per la distribució d'edat.
+
+## Summarise the proportion of population with superior level studies in each district.
+
+Obtenim la llista d'estudis
 
 ```{r}
 summarize(group_by(data, nivell_estudis))
 ```
+
 Els estudis superiors són:
 
-* *1 ALTRES TÍTOLS DE GRAU MIG*
-* *2 ARQUITECTE,ENGINYER TÈCNI* 
-* 3 BATXILLER SUPERIOR, BUP
-* 4 BATXILLER,FPII O SUPERIOR 
-* *5 DIPLOMAT ESCOLA UNIVERS*
-* *6 DOCTORAT I POST-GRAU*
-* 7 ESO, PRIMÀRIA O EQUIV.
-* *8 FP 1ER GRAU O MITJÀ*
-* *9 FP 2ON GRAU O SUPERIOR*
-* *10 LLICENCIAT O GRAU UNIVER.*
-11 NI LLEGIR NI ESCRIURE
-12 NO APLICABLE MENOR 16
-13 PRIMÀRIA INCOMPLETA
-14 SENSE ESTUDIS
-* *15 TÍTOL SUP NO UNIVERSITARI*
+-   *1 ALTRES TÍTOLS DE GRAU MIG*
+-   *2 ARQUITECTE,ENGINYER TÈCNI*
+-   3 BATXILLER SUPERIOR, BUP
+-   4 BATXILLER,FPII O SUPERIOR
+-   *5 DIPLOMAT ESCOLA UNIVERS*
+-   *6 DOCTORAT I POST-GRAU*
+-   7 ESO, PRIMÀRIA O EQUIV.
+-   *8 FP 1ER GRAU O MITJÀ*
+-   *9 FP 2ON GRAU O SUPERIOR*
+-   *10 LLICENCIAT O GRAU UNIVER.* 11 NI LLEGIR NI ESCRIURE 12 NO
+    APLICABLE MENOR 16 13 PRIMÀRIA INCOMPLETA 14 SENSE ESTUDIS
+-   *15 TÍTOL SUP NO UNIVERSITARI*
 
 ```{r}
 estudis_superiors = c(
@@ -124,8 +146,7 @@ data_adults = filter(data, nivell_estudis != 'NO APLICABLE MENOR 16')
 dist_estudis = summarize(group_by(data_adults, districte), superiors = round(100*mean(nivell_estudis %in% estudis_superiors, rm.NA = TRUE), digits = 2))
 dist_estudis
 ```
-
-Visualització en forma de barres
+*Visualització en forma de barres*
 
 ```{r}
 ggplot(dist_estudis, aes(x=districte, y=superiors, labels=districte)) +
@@ -134,20 +155,33 @@ ggplot(dist_estudis, aes(x=districte, y=superiors, labels=districte)) +
   theme_minimal()
 ```
 
-Visualització en forma de mapa
+*Visualització en forma de mapa*
+
+Carreguem el shapefile de les seccions censals i unim els polígons per
+districte.
 
 ```{r}
-nclr = 9
+seccio_sf = st_read(shapefile)
+districte_sf = summarise(group_by(seccio_sf, DISTRICTE))
+```
+
+Calculem la paleta de colors i ho dibuixem
+
+```{r}
+nclr = 5 #nrow(dist_estudis)
 plotclr = brewer.pal(nclr,"BuPu")
-class = classIntervals(pull(dist_estudis), nclr, style="equal")
+class = classIntervals(pull(dist_estudis), nclr, style="pretty")#,warnSmallN=FALSE)
+#class = classIntervals(pull(dist_estudis), style="fixed",fixedBreaks=c(20,25,30,40,45,50))
 colcode = findColours(class, plotclr)
 
-orgirona_sf = st_read(shapefile)
 title = "Nivell d'estudis per districte"
 subtitle = "Percentatge sobre el total de població del districte"
-plot(orgirona_sf['BARRIS'], col=colcode, main=NULL)
+plot(districte_sf['DISTRICTE'], col=colcode, main=NULL)
 title(main=title, sub=subtitle)
-legend("bottomright", legend=names(attr(colcode, "table")),
+legend("bottomright", legend=names(attr(colcode, "table")), #alternative paste0(as.character(sort(pull(dist_estudis))), " ", names(attr(colcode, "table"))),
        fill=attr(colcode, "palette"), cex=1.0, bty="n")
 ```
 
+Podem observar una diferència notable entre els districtes 2, 4 i 5 en comparació als altres. Potser la presència de la zona universitària al districte 2 decanta la balança cap als estudis superiors. 
+
+En la visualització en forma de mapa podem observar que els districtes entre 35-40 % no són al voltant del districte universitari. Caldria buscar altres variables per a explicar les diferències entre districtes que queden fora de l'abast d'aquest exercici.
