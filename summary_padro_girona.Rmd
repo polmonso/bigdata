@@ -12,6 +12,22 @@ editor_options:
 knitr::opts_chunk$set(echo=TRUE, warning=TRUE, error=TRUE)
 ```
 
+## Índex
+
+Les tasques que resoldrem en aquest exercici són les següents:
+
+-   Create a script to download information related to the register of
+    inhabitants during 2020, and save the table in a file called
+    padro_2020.RData
+-   Summarise the variable study levels (nivell_estudis). What are the
+    most common levels?
+-   Summarise the average age within district (districte).
+-   Summarise the proportion of population with superior level studies
+    in each district.
+    -   Visualització en taula
+    -   Visualització en forma de barres
+    -   Visualització en forma de mapa
+
 ## Install dependencies
 
 ```{r, message=FALSE}
@@ -81,7 +97,8 @@ if(!file.exists(shapefile)){
 }
 ```
 
-La shapefile per seccions és massa granularitzada: les seccions conformen els districtes. Quan fem el mapa les unirem.
+La shapefile per seccions és massa granularitzada: les seccions
+conformen els districtes. Quan fem el mapa les unirem.
 
 ## Summarise the variable study levels (nivell_estudis). What are the most common levels?
 
@@ -89,7 +106,10 @@ La shapefile per seccions és massa granularitzada: les seccions conformen els d
 arrange(summarize(group_by(data, nivell_estudis), popularitat = as.numeric(100*n()/count(data))), desc(popularitat))
 ```
 
-La majoria de la població no ha passat a estudis superiors. Per sort, el tant per cent de gent que no ha estat escolaritzada és força baix, tot i que segueix sent massa tenint en compte que l'educació secundària és obligatòria.
+La majoria de la població no ha passat a estudis superiors. Per sort, el
+tant per cent de gent que no ha estat escolaritzada és força baix, tot i
+que segueix sent massa tenint en compte que l'educació secundària és
+obligatòria.
 
 ## Summarise the average age within district (districte).
 
@@ -97,9 +117,12 @@ La majoria de la població no ha passat a estudis superiors. Per sort, el tant p
 summarize(group_by(data, districte), edat_mitja = mean(as.integer(format(Sys.Date(), "%Y")) - data_naixement))
 ```
 
-Com era d'esperar, l'edat mitja està força uniformament repartida entre els districtes. Tot i que potser podríem trobar una certa preferència a la perifèria a mida que augmenta l'edat.
+Com era d'esperar, l'edat mitja està força uniformament repartida entre
+els districtes. Tot i que potser podríem trobar una certa preferència a
+la perifèria a mida que augmenta l'edat.
 
-Com que l'edat està força uniformament repartida, l'anàlisi del nivell d'estudis no es veurà gaire esbiaixat per la distribució d'edat.
+Com que l'edat està força uniformament repartida, l'anàlisi del nivell
+d'estudis no es veurà gaire esbiaixat per la distribució d'edat.
 
 ## Summarise the proportion of population with superior level studies in each district.
 
@@ -146,6 +169,7 @@ data_adults = filter(data, nivell_estudis != 'NO APLICABLE MENOR 16')
 dist_estudis = summarize(group_by(data_adults, districte), superiors = round(100*mean(nivell_estudis %in% estudis_superiors, rm.NA = TRUE), digits = 2))
 dist_estudis
 ```
+
 *Visualització en forma de barres*
 
 ```{r}
@@ -182,6 +206,11 @@ legend("bottomright", legend=names(attr(colcode, "table")), #alternative paste0(
        fill=attr(colcode, "palette"), cex=1.0, bty="n")
 ```
 
-Podem observar una diferència notable entre els districtes 2, 4 i 5 en comparació als altres. Potser la presència de la zona universitària al districte 2 decanta la balança cap als estudis superiors. 
+Podem observar una diferència notable entre els districtes 2, 4 i 5 en
+comparació als altres. Potser la presència de la zona universitària al
+districte 2 decanta la balança cap als estudis superiors.
 
-En la visualització en forma de mapa podem observar que els districtes entre 35-40 % no són al voltant del districte universitari. Caldria buscar altres variables per a explicar les diferències entre districtes que queden fora de l'abast d'aquest exercici.
+En la visualització en forma de mapa podem observar que els districtes
+entre 35-40 % no són al voltant del districte universitari. Caldria
+buscar altres variables per a explicar les diferències entre districtes
+que queden fora de l'abast d'aquest exercici.
