@@ -1,0 +1,68 @@
+---
+title: "Anàlisi del padró de Girona 2020"
+author: "Pol Monsó Purtí"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+Create a script to download information related to the register of
+inhabitants during 2020, and save the table in a file called
+padro_2020.RData.
+
+``` r
+csv_url = "https://terra.girona.cat/opendata/storage/f/2021-04-19T07%3A52%3A25.797Z/padro-2021.csv"
+data = read.csv(csv_url, sep=';', dec=',')
+save(data, file="data/padro_2020.RData")
+```
+
+Summarise the variable study levels (nivell_estudis). What are the most
+common levels?
+
+``` r
+arrange(summarize(group_by(data, nivell_estudis), popularitat = 100\*n()/count(data)), desc(popularitat))
+```
+
+Summarise the average age within district (districte).
+
+``` r
+summarize(group_by(data, districte), edat_mitja = mean(as.integer(format(Sys.Date(), "%Y")) - data_naixement))
+```
+
+Summarise the proportion of population with superior level studies in
+each district.
+
+## Obtenim la llista d'estudis
+
+summarize(group_by(data, nivell_estudis))
+
+*1 ALTRES TÍTOLS DE GRAU MIG* *2 ARQUITECTE,ENGINYER TÈCNI* 3 BATXILLER
+SUPERIOR, BUP 4 BATXILLER,FPII O SUPERIOR *5 DIPLOMAT ESCOLA UNIVERS* *6
+DOCTORAT I POST-GRAU* 7 ESO, PRIMÀRIA O EQUIV. *8 FP 1ER GRAU O MITJÀ*
+*9 FP 2ON GRAU O SUPERIOR* *10 LLICENCIAT O GRAU UNIVER.* 11 NI LLEGIR
+NI ESCRIURE 12 NO APLICABLE MENOR 16 13 PRIMÀRIA INCOMPLETA 14 SENSE
+ESTUDIS *15 TÍTOL SUP NO UNIVERSITARI*
+
+``` r
+estudis_superiors = c(
+  'ALTRES TÍTOLS DE GRAU MIG',
+  'ARQUITECTE,ENGINYERTÈCNI',
+  'DIPLOMAT ESCOLA UNIVERS.',
+  'DOCTORAT I POST-GRAU',
+  'FP 1ER GRAU O MITJÀ',
+  'FP 2ON GRAU O SUPERIOR',
+  'LLICENCIAT O GRAU UNIVER.',
+  'TÍTOL SUP NO UNIVERSITARI'
+)
+
+summarize(group_by(data, districte), superiors = 100*mean(nivell_estudis %in% estudis_superiors, rm.NA = TRUE))
+```
+
+si volem treure els menors de 16
+
+``` r
+data_adults = filter(data, nivell_estudis != 'NO APLICABLE MENOR 16')
+summarize(group_by(data_adults, districte), superiors = 100*mean(nivell_estudis %in% estudis_superiors, rm.NA = TRUE))
+```

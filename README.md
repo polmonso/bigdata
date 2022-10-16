@@ -191,3 +191,26 @@ preguntes per resoldre
 ======================
 
 Taula és un tipus? Quin?
+
+
+plotting
+========
+
+ggplot2
+
+ggplot(data=birthwt) +
+  geom_bar(aes(x = smoke_lbl))
+
+`aes` per definir l'estètica del ggplot (quina variable va a l'eix x, quin a l'eix y i tot de goodies estètics per anar modificant el graph)
+
+gem_bar
+
+
+`egg` per combinar graphs
+
+ggarrange(p1, p2, ncol = 2)
+
+on p1 p2 són ggplots
+
+
+mare meva que fan servir .. per referir-se a variables internes rollo self o algo https://stackoverflow.com/questions/19997231/two-dots-in-r

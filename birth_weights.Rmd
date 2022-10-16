@@ -1,0 +1,26 @@
+```{r]
+library(tidyverse)
+
+
+
+
+library(readxl)
+birthwt = read_excel('data/birthwt.xlsx')
+birthwt = mutate(birthwt,
+                 smoke_lbl = factor(smoke, labels = c('Non-smoker', 'Smoker')))
+birthwt
+
+
+p1 = ggplot(data=birthwt) +
+  geom_bar(aes(x = smoke_lbl))
+
+p2 = ggplot(data=birthwt) +
+  geom_bar(aes(x = smoke_lbl,
+               y=(..count../sum(..count..)))
+
+library(egg)
+ggarrange(p1, p2, ncol = 2)
+
+
+
+```
