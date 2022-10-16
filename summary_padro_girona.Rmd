@@ -12,6 +12,9 @@ editor_options:
 knitr::opts_chunk$set(echo=TRUE, warning=TRUE, error=TRUE)
 ```
 
+Una preview d'aquest document 'knitted' es pot trobar
+[aquí](https://htmlpreview.github.io/?https://raw.githubusercontent.com/polmonso/bigdata/master/summary_padro_girona.html)
+
 ## Índex
 
 Les tasques que resoldrem en aquest exercici són les següents:
