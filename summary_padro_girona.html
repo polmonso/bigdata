@@ -11,7 +11,7 @@
 
 <meta name="author" content="Pol Monsó Purtí" />
 
-<meta name="date" content="2022-10-16" />
+<meta name="date" content="2022-10-19" />
 
 <title>Anàlisi del padró de Girona 2020</title>
 
@@ -358,7 +358,7 @@ pre code {
 
 <h1 class="title toc-ignore">Anàlisi del padró de Girona 2020</h1>
 <h4 class="author">Pol Monsó Purtí</h4>
-<h4 class="date">2022-10-16</h4>
+<h4 class="date">2022-10-19</h4>
 
 </div>
 
@@ -393,7 +393,7 @@ require(&#39;rgdal&#39;)
 require(&#39;sf&#39;)
 require(&#39;RColorBrewer&#39;)
 require(&#39;classInt&#39;)
-require(&#39;maptools&#39;) 
+require(&#39;maptools&#39;)
 
 
 
@@ -446,8 +446,8 @@ conformen els districtes. Quan fem el mapa les unirem.</p>
 <div id="summarise-the-variable-study-levels-nivell_estudis.-what-are-the-most-common-levels" class="section level2">
 <h2>Summarise the variable study levels (nivell_estudis). What are the
 most common levels?</h2>
-<pre class="r"><code>arrange(summarize(group_by(data, nivell_estudis), popularitat = as.numeric(100*n()/count(data))), desc(popularitat))</code></pre>
-<pre><code>## # A tibble: 15 × 2
+<pre class="r"><code>arrange(summarize(group_by(data, nivell_estudis), popularitat = as.numeric(100*n()/count(data))), desc(popularitat))
+## # A tibble: 15 × 2
 ##    nivell_estudis            popularitat
 ##    &lt;chr&gt;                           &lt;dbl&gt;
 ##  1 ESO, PRIMÀRIA O EQUIV.         22.3  
@@ -472,8 +472,8 @@ tot i que segueix sent massa tenint en compte que l’educació secundària
 </div>
 <div id="summarise-the-average-age-within-district-districte." class="section level2">
 <h2>Summarise the average age within district (districte).</h2>
-<pre class="r"><code>summarize(group_by(data, districte), edat_mitja = mean(as.integer(format(Sys.Date(), &quot;%Y&quot;)) - data_naixement))</code></pre>
-<pre><code>## # A tibble: 6 × 2
+<pre class="r"><code>summarize(group_by(data, districte), edat_mitja = mean(as.integer(format(Sys.Date(), &quot;%Y&quot;)) - data_naixement))
+## # A tibble: 6 × 2
 ##   districte edat_mitja
 ##   &lt;chr&gt;          &lt;dbl&gt;
 ## 1 1               40.7
@@ -493,8 +493,8 @@ d’edat.</p>
 <h2>Summarise the proportion of population with superior level studies
 in each district.</h2>
 <p>Obtenim la llista d’estudis</p>
-<pre class="r"><code>summarize(group_by(data, nivell_estudis))</code></pre>
-<pre><code>## # A tibble: 15 × 1
+<pre class="r"><code>summarize(group_by(data, nivell_estudis))
+## # A tibble: 15 × 1
 ##    nivell_estudis           
 ##    &lt;chr&gt;                    
 ##  1 ALTRES TÍTOLS DE GRAU MIG
@@ -514,18 +514,21 @@ in each district.</h2>
 ## 15 TÍTOL SUP NO UNIVERSITARI</code></pre>
 <p>Els estudis superiors són:</p>
 <ul>
-<li><em>1 ALTRES TÍTOLS DE GRAU MIG</em></li>
-<li><em>2 ARQUITECTE,ENGINYER TÈCNI</em></li>
+<li><strong>1 ALTRES TÍTOLS DE GRAU MIG</strong></li>
+<li><strong>2 ARQUITECTE,ENGINYER TÈCNI</strong></li>
 <li>3 BATXILLER SUPERIOR, BUP</li>
 <li>4 BATXILLER,FPII O SUPERIOR</li>
-<li><em>5 DIPLOMAT ESCOLA UNIVERS</em></li>
-<li><em>6 DOCTORAT I POST-GRAU</em></li>
+<li><strong>5 DIPLOMAT ESCOLA UNIVERS</strong></li>
+<li><strong>6 DOCTORAT I POST-GRAU</strong></li>
 <li>7 ESO, PRIMÀRIA O EQUIV.</li>
-<li><em>8 FP 1ER GRAU O MITJÀ</em></li>
-<li><em>9 FP 2ON GRAU O SUPERIOR</em></li>
-<li><em>10 LLICENCIAT O GRAU UNIVER.</em> 11 NI LLEGIR NI ESCRIURE 12 NO
-APLICABLE MENOR 16 13 PRIMÀRIA INCOMPLETA 14 SENSE ESTUDIS</li>
-<li><em>15 TÍTOL SUP NO UNIVERSITARI</em></li>
+<li><strong>8 FP 1ER GRAU O MITJÀ</strong></li>
+<li><strong>9 FP 2ON GRAU O SUPERIOR</strong></li>
+<li><strong>10 LLICENCIAT O GRAU UNIVER.</strong></li>
+<li>11 NI LLEGIR NI ESCRIURE</li>
+<li>12 NO APLICABLE MENOR 16</li>
+<li>13 PRIMÀRIA INCOMPLETA</li>
+<li>14 SENSE ESTUDIS</li>
+<li><strong>15 TÍTOL SUP NO UNIVERSITARI</strong></li>
 </ul>
 <pre class="r"><code>estudis_superiors = c(
   &#39;ALTRES TÍTOLS DE GRAU MIG&#39;,
@@ -538,8 +541,8 @@ APLICABLE MENOR 16 13 PRIMÀRIA INCOMPLETA 14 SENSE ESTUDIS</li>
   &#39;TÍTOL SUP NO UNIVERSITARI&#39;
 )
 
-summarize(group_by(data, districte), superiors = 100*mean(nivell_estudis %in% estudis_superiors, rm.NA = TRUE))</code></pre>
-<pre><code>## # A tibble: 6 × 2
+summarize(group_by(data, districte), superiors = 100*mean(nivell_estudis %in% estudis_superiors, rm.NA = TRUE))
+## # A tibble: 6 × 2
 ##   districte superiors
 ##   &lt;chr&gt;         &lt;dbl&gt;
 ## 1 1              22.3
@@ -551,8 +554,8 @@ summarize(group_by(data, districte), superiors = 100*mean(nivell_estudis %in% es
 <p>si volem treure els menors de 16</p>
 <pre class="r"><code>data_adults = filter(data, nivell_estudis != &#39;NO APLICABLE MENOR 16&#39;)
 dist_estudis = summarize(group_by(data_adults, districte), superiors = round(100*mean(nivell_estudis %in% estudis_superiors, rm.NA = TRUE), digits = 2))
-dist_estudis</code></pre>
-<pre><code>## # A tibble: 6 × 2
+dist_estudis
+## # A tibble: 6 × 2
 ##   districte superiors
 ##   &lt;chr&gt;         &lt;dbl&gt;
 ## 1 1              28.4
@@ -570,16 +573,16 @@ dist_estudis</code></pre>
 <p><em>Visualització en forma de mapa</em></p>
 <p>Carreguem el shapefile de les seccions censals i unim els polígons
 per districte.</p>
-<pre class="r"><code>seccio_sf = st_read(shapefile)</code></pre>
-<pre><code>## Reading layer `Seccions&#39; from data source 
+<pre class="r"><code>seccio_sf = st_read(shapefile)
+## Reading layer `Seccions&#39; from data source 
 ##   `/home/pol/code/bigdata1/data/girona_seccions_shp/Seccions.shp&#39; 
 ##   using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 74 features and 11 fields
 ## Geometry type: POLYGON
 ## Dimension:     XY
 ## Bounding box:  xmin: 482002 ymin: 4643046 xmax: 491535.4 ymax: 4653103
-## Projected CRS: ETRS89 / UTM zone 31N</code></pre>
-<pre class="r"><code>districte_sf = summarise(group_by(seccio_sf, DISTRICTE))</code></pre>
+## Projected CRS: ETRS89 / UTM zone 31N
+districte_sf = summarise(group_by(seccio_sf, DISTRICTE))</code></pre>
 <p>Calculem la paleta de colors i ho dibuixem</p>
 <pre class="r"><code>nclr = 5 #nrow(dist_estudis)
 plotclr = brewer.pal(nclr,&quot;BuPu&quot;)

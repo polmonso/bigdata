@@ -3,13 +3,13 @@ title: "Anàlisi del padró de Girona 2020"
 author: "Pol Monsó Purtí"
 date: "`r Sys.Date()`"
 output: html_document
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: 72
 ---
 
 ```{r, include=FALSE}
-knitr::opts_chunk$set(echo=TRUE, warning=TRUE, error=TRUE)
+knitr::opts_chunk$set(echo=TRUE, warning=TRUE, error=TRUE, collapse=TRUE, message = FALSE)
 ```
 
 Una preview d'aquest document 'knitted' es pot trobar
@@ -42,7 +42,7 @@ require('rgdal')
 require('sf')
 require('RColorBrewer')
 require('classInt')
-require('maptools') 
+require('maptools')
 
 
 
@@ -137,18 +137,21 @@ summarize(group_by(data, nivell_estudis))
 
 Els estudis superiors són:
 
--   *1 ALTRES TÍTOLS DE GRAU MIG*
--   *2 ARQUITECTE,ENGINYER TÈCNI*
--   3 BATXILLER SUPERIOR, BUP
--   4 BATXILLER,FPII O SUPERIOR
--   *5 DIPLOMAT ESCOLA UNIVERS*
--   *6 DOCTORAT I POST-GRAU*
--   7 ESO, PRIMÀRIA O EQUIV.
--   *8 FP 1ER GRAU O MITJÀ*
--   *9 FP 2ON GRAU O SUPERIOR*
--   *10 LLICENCIAT O GRAU UNIVER.* 11 NI LLEGIR NI ESCRIURE 12 NO
-    APLICABLE MENOR 16 13 PRIMÀRIA INCOMPLETA 14 SENSE ESTUDIS
--   *15 TÍTOL SUP NO UNIVERSITARI*
+- **1 ALTRES TÍTOLS DE GRAU MIG**
+- **2 ARQUITECTE,ENGINYER TÈCNI**
+- 3 BATXILLER SUPERIOR, BUP
+- 4 BATXILLER,FPII O SUPERIOR
+- **5 DIPLOMAT ESCOLA UNIVERS**
+- **6 DOCTORAT I POST-GRAU**
+- 7 ESO, PRIMÀRIA O EQUIV.
+- **8 FP 1ER GRAU O MITJÀ**
+- **9 FP 2ON GRAU O SUPERIOR**
+- **10 LLICENCIAT O GRAU UNIVER.**
+- 11 NI LLEGIR NI ESCRIURE
+- 12 NO APLICABLE MENOR 16
+- 13 PRIMÀRIA INCOMPLETA
+- 14 SENSE ESTUDIS
+- **15 TÍTOL SUP NO UNIVERSITARI**
 
 ```{r}
 estudis_superiors = c(
