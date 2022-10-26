@@ -5,21 +5,6 @@
 `diamonds` és un datasaet del paquet ggplot2 que descriu 54000 diamants. Aquest és un dataset del 2008 fet per [Solomon](https://rpubs.com/anthonycerna/diamondspredictions), tot i que no he trobat massa informació sobre l'origen del dataset. La idea d'aquest informa és analitzar aquest dataset, veure quines features són més rellevants a l'hora de determinar el preu i mirar de fer algun model predictiu.
 
 
-## Referències
-
-L'anàlisi del dataset ha seguit força els articles següents:
-
-- [Garg - Diamonds what determines their price](https://12ft.io/proxy?q=https%3A%2F%2Fmedium.com%2Fcodex%2Fdiamonds-what-determines-their-price-264a83c7f61a)
-- [Napitupulu - Diamonds' Analysis](http://napitupulu-jon.appspot.com/posts/diamonds-analysis.html)
-- [Cerna - Diamonds Predictions](https://rpubs.com/anthonycerna/diamondspredictions)
-- [Mayer - A curious fact on the diamonds dataset](https://lorentzen.ch/index.php/2021/04/16/a-curious-fact-on-the-diamonds-dataset/)
-- [Diamond Search Engine](https://www.diamondse.info)
-- [Standford dcl model](https://dcl-model.stanford.edu/understand_your_data.html)
-
-En especial el primer i l'últim article. Recomanem que no llegiu l'article de Mayer fins al final de l'informe.
-
-## Dependències
-
 ```{r include = FALSE}
 knitr::opts_chunk$set(fig.align='center', echo=FALSE, message=FALSE, warning=FALSE)
 ```
@@ -52,31 +37,40 @@ library(splitTools)
 data(diamonds)
 ```
 
+## Referències
+
+L'anàlisi del dataset ha seguit força els articles següents:
+
+- [Garg - Diamonds what determines their price](https://12ft.io/proxy?q=https%3A%2F%2Fmedium.com%2Fcodex%2Fdiamonds-what-determines-their-price-264a83c7f61a)
+- [Napitupulu - Diamonds' Analysis](http://napitupulu-jon.appspot.com/posts/diamonds-analysis.html)
+- [Cerna - Diamonds Predictions](https://rpubs.com/anthonycerna/diamondspredictions)
+- [Mayer - A curious fact on the diamonds dataset](https://lorentzen.ch/index.php/2021/04/16/a-curious-fact-on-the-diamonds-dataset/)
+- [Diamond Search Engine](https://www.diamondse.info)
+- [Standford dcl model](https://dcl-model.stanford.edu/understand_your_data.html)
+
+En especial el segon i quart article. Recomanem que no llegiu l'article de Mayer fins al final de l'informe.
+
+## Introducció
+
+En aquest informe primer farem un anàlisi del dataset `diamonds`, a continuació veurem quines variables són més importants per explicar el preu d'un diamant i finalment calcularem algun model de predicció
+
 ## Anàlisi del dataset
 
-Notes:
-
-Primer reproduïr l'anàlisi de la harishita
-Anar un xic més enllà mirant d'explicar quines features són més importants per a determinar el preu
-Fer RMSE com a curious fact sense grouped
-Fer un cop d'efecte amb el a curious fact
-Refer RMSE i mostrar el biaix
-
-## Exploració superficial
+### Exploració superficial
 
 ```{r}
 glimpse(diamonds)
 ```
 
-D'entrada podem veure que el dataset té 10 caraterístiques de les quals tres són categòriques i la majoria són quantitatives.
+D'entrada podem veure que el dataset té 10 característiques de les quals tres són categòriques i la majoria són quantitatives.
 
 La majoria podem endevinar a què fan referència. El color i el preu es refereixen al color del diamant i el preu de venta. Si explorem el color veiem que el rang de la variable és de D a J. Segons [Diamonds Search Engine](https://www.diamondse.info/diamonds-color.asp), la D és sense color i la J és el rang més opac dels que no tenen color.
 
-El tall és una variable categòrica describint la qualitat del tall i la claredat també. Els millors talls fan diamants més simètrics i lluminosos, mentre que la claredat es veu influenciada per microescletxes i imperfeccions del diamant, i per tant, com menys imperfeccions tenim millor és la claredat (`IF`) i viceversa (`I1`) ([Claredat](https://www.diamondse.info/diamonds-clarity.asp))
+El tall és una variable categòrica describint la qualitat del tall i la claredat també. Els millors talls fan diamants més simètrics i lluminosos, mentre que la claredat es veu influenciada per microescletxes i imperfeccions del diamant, i per tant, com menys imperfeccions tenim millor és la claredat (`IF`) i viceversa (`I1`) ([Claredat](https://www.diamondse.info/diamonds-clarity.asp)).
 
-Pel què fa a les dimensions, tenim x, y, z, table, depth i carat. x, y i z són les dimensions màximes/externes del diamant i taula i profunditat les mínimes/internes.
+Pel què fa a les dimensions, tenim x, y, z, table, depth i carat. x, y i z són les dimensions màximes/externes del diamant i taula i profunditat les mínimes/internes. La [imatge 1](#dimensions) il·lustra bé les dimensions.
 
-La [imatge 1](#dimensions) il·lustra bé les dimensions. I finalment el pes es mesura en carats.
+Finalment el pes d'un diamant es mesura en carats.
 
 []{#dimensions}
 
@@ -84,7 +78,7 @@ La [imatge 1](#dimensions) il·lustra bé les dimensions. I finalment el pes es 
 ![Imatge 1: Explicació de les dimensions d'un diamant](images/diamonds.png)
 </center>
 
-La variable que més estudiarem serà la del preu. De quines variables depèn més? Quines són poc rellevants? D'entrada podem fer una ullada a la distribució d'aquest preu [[Imatge 1](#distribucio)] i observar que la majoria de diamands es venen per menys de dos mil dòlars i que per sobre de cinc mil tenim una cua exponencialment decreixent amb poca freqüència que s'allarga fins a 18000 US$. En general la corba és exponencial decreixent amb un petit *plateau* de dos mil a cinc mil.
+La variable que més estudiarem serà la del preu. De quines variables depèn més? Quines són poc rellevants? D'entrada podem fer una ullada a la distribució d'aquest preu [[Imatge 1](#distribucio)] i observar que la majoria de diamants es venen per menys de dos mil dòlars i que per sobre de cinc mil tenim una cua exponencialment decreixent amb poca freqüència que s'allarga fins a 18000 US$. En general la corba és exponencial decreixent amb un petit *plateau* de dos mil a cinc mil.
 
 []{#distribucio}
 
@@ -113,9 +107,9 @@ Una altra conclusió que podem treure, tot i que no correlaciona amb el preu, é
 
 ### Variables categòriques
 
-Les variables categòriques són les que resultaran més interessants donat que llur correlació amb el preu és menys evident. El que farem per anàlitzar el tall, el color i la claredat és mostrar la distribució del preu per a cada valor de variable categòrica [[Imatge 3](#catcorr)]
+Les variables categòriques són les que resultaran més interessants donat que llur correlació amb el preu és menys evident. El que farem per anàlitzar el tall, el color i la claredat és mostrar la distribució del preu per a cada valor de variable categòrica [[Imatge 3](#catcorr)].
 
-Per a fer-ho dibuixarem la distribució del preu condicionada per la variable categòrica i també el diagrama de caixes per veure la mediana, els quantiles i els valors més extrems (que, amb la distribució dels preus de l'anàlisi preliminar, ja podem anticipar que seràn a la part més cara del gràfic).
+Per a fer-ho dibuixarem la distribució del preu condicionada per la variable categòrica i també el diagrama de caixes per veure la mediana, els quantils i els valors més extrems (que, amb la distribució dels preus de l'anàlisi preliminar, ja podem anticipar que seràn a la part més cara del gràfic).
 
 []{#catcorr}
 
@@ -185,7 +179,7 @@ ggpubr::ggarrange(p1, p2, nrow = 1, ncol = 2)
 
 Un cop feta l'exploració del dataset, podem passar a mirar de determinar quina de les variables és més rellevant per determinar el preu d'un diamant.
 
-Per a fer-ho, començarem per mirar d'encaixar una regressió lineal amb les dades i n'observarem la coincidència [[Imatge 7](#lm)]
+Per a fer-ho, començarem per mirar d'encaixar una regressió lineal amb les dades i n'observarem la coincidència [[Imatge 7](#lm)].
 
 ### Linear modeling
 
@@ -253,7 +247,7 @@ El model ens explica un 99% del dataset i té un rmse de 0.10. Millor que abans,
 
 Després d'aquest anàlisi, podem concloure que la variable que més importa a l'hora de determinar el preu del diamant és el seu pes, així que és manté aquella imatge de les pel·lícules de voler oferir [un diamant ben gros ben gros](https://youtu.be/bfsnebJd-BI?t=136).
 
-I doncs, **ja hem acabat?** Ja hauríem acabat si no fos pel resultat següent, agrupar el dataset per les seves variables categòriques, el carat i el preu [[Image 11](#dupes)].
+I doncs, **ja hem acabat?** Ja hauríem acabat si no fos pel resultat següent; agrupar el dataset per les seves variables categòriques, el carat i el preu [[Image 11](#dupes)].
 
 []{#dupes}
 
@@ -325,7 +319,6 @@ barplot(results, col = "orange", ylab = "RMSE via validació creuada 5-fold")
 A la [[Imatge 12](#impact)] veiem com en una evaluació naïf de l'error creuriem que el nostre model explica la variable observada un 1% millor que no pas si ho evaluem amb una estratègia robusta. Això és un error relatiu considerable, de gairebé un 10%.
 
 Aquest resultat ens denota la importància de tenir bones estratègies de validació, sinó, podríem estar donant resultats incorrectes i no ho sabríem.
-
 
 ## Conclusions (ara si)
 
