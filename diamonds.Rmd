@@ -75,7 +75,7 @@ Finalment el pes d'un diamant es mesura en carats.
 []{#dimensions}
 
 <center>
-![Imatge 1: Explicació de les dimensions d'un diamant](images/diamonds.png)
+![Imatge 1: Explicació de les dimensions d'un diamant](https://raw.githubusercontent.com/polmonso/bigdata/master/images/diamonds.png)
 </center>
 
 La variable que més estudiarem serà la del preu. De quines variables depèn més? Quines són poc rellevants? D'entrada podem fer una ullada a la distribució d'aquest preu [[Imatge 1](#distribucio)] i observar que la majoria de diamants es venen per menys de dos mil dòlars i que per sobre de cinc mil tenim una cua exponencialment decreixent amb poca freqüència que s'allarga fins a 18000 US$. En general la corba és exponencial decreixent amb un petit *plateau* de dos mil a cinc mil.
