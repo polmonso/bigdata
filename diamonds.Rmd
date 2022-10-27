@@ -1,4 +1,16 @@
-# Report sobre el conjunt de dades `diamonds`
+---
+title: "Report sobre el conjunt de dades `diamonds`"
+author: "Pol Monsó Purtí"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+<style>
+body {text-align: justify}
+</style>
 
 ## Context
 
@@ -39,7 +51,7 @@ data(diamonds)
 
 ## Referències
 
-L'anàlisi del dataset ha seguit força segments dels articles següents:
+L'anàlisi del dataset ha seguit força algunes parts dels articles següents:
 
 - [Garg - Diamonds what determines their price](https://12ft.io/proxy?q=https%3A%2F%2Fmedium.com%2Fcodex%2Fdiamonds-what-determines-their-price-264a83c7f61a)
 - [Napitupulu - Diamonds' Analysis](http://napitupulu-jon.appspot.com/posts/diamonds-analysis.html)
@@ -64,13 +76,13 @@ glimpse(diamonds)
 
 D'entrada podem veure que el dataset té 10 característiques de les quals tres són categòriques i la majoria són quantitatives.
 
-La majoria podem endevinar a què fan referència. El color i el preu es refereixen al color del diamant i el preu de venta. Si explorem el color veiem que el rang de la variable és de D a J. Segons [Diamonds Search Engine](https://www.diamondse.info/diamonds-color.asp), la D és sense color i la J és el rang més opac dels transparents que no tenen color.
+Sense anar més lluny, ja podem endevinar a què fan referència la major part de les variables. El color i el preu es refereixen al color del diamant i el preu de venta. Si explorem el color veiem que el rang de la variable és de D a J. Segons [Diamonds Search Engine](https://www.diamondse.info/diamonds-color.asp), la D és sense color i la J és el rang més opac dels transparents que no tenen color.
 
-El tall és una variable categòrica descrivint la qualitat del tall, i la claredat, també. Els millors talls fan diamants més simètrics i lluminosos, mentre que la claredat es veu influenciada per micro escletxes i imperfeccions del diamant. Per tant, com menys imperfeccions tenim, millor és la claredat (`IF`) i viceversa (`I1`) ([Claredat](https://www.diamondse.info/diamonds-clarity.asp)).
+El tall és una variable categòrica que descriu la qualitat del tall, i la claredat, també. Segons la font anterior, els millors talls fan diamants més simètrics i lluminosos, mentre que la claredat es veu influenciada per micro escletxes i imperfeccions del diamant. Per tant, com menys imperfeccions tenim, millor és la claredat (`IF`) i viceversa (`I1`) ([Claredat](https://www.diamondse.info/diamonds-clarity.asp)).
 
-Pel què fa a les dimensions, tenim `x`, `y`, `z`, `table`, `depth` i `carat`. `x`, `y` i `z` són les dimensions màximes/externes del diamant i _taula_ i _profunditat_ les mínimes/internes. La [imatge 1](#dimensions) iŀlustra bé les dimensions.
+Pel què fa a les dimensions, tenim `x`, `y`, `z`, `table`, `depth` i `carat`. `x`, `y` i `z` són les dimensions màximes/externes del diamant i _taula_ i _profunditat_ les mínimes/internes. La [imatge 1](#dimensions) iŀlustra bé com es defineixen aquestes dimensions.
 
-Finalment el pes d'un diamant es mesura en _carats_.
+I finalment, el pes d'un diamant es mesura en _carats_.
 
 []{#dimensions}
 
@@ -92,7 +104,7 @@ Aquesta distribució tant esbiaixada fa que la mitjana i la mediana siguin molt 
 
 ### Variables númeriques
 
-Un cop ja hem fet una ullada a la distribució del preu i tenim una idea del què podem esperar podem explorar la correlació entre les variables que composen el dataset. Com més correlades estiguin més grans ens sortiran els cercles del gràfic de correlació [[Imatge 2](#correlacio)]. Això ens permetrà tenir una idea de quines variables numèriques són les més rellevants en determinar el preu.
+Un cop ja hem fet una ullada a la distribució del preu i tenim una idea del què podem esperar, podem explorar la correlació entre les variables que composen el dataset. Com més correlades estiguin més grans ens sortiran els cercles del gràfic de correlació [[Imatge 2](#correlacio)]. Això ens permetrà tenir una idea de quines variables numèriques són les més rellevants en determinar el preu.
 
 []{#correlacio}
 
@@ -117,7 +129,7 @@ Per a fer-ho dibuixarem la distribució del preu condicionada per la variable ca
 p1 <- ggplot(diamonds, aes(x = price, y = cut, fill = ..x..)) +
   geom_density_ridges_gradient(scale = 2, rel_min_height = 0.01) +
   scale_fill_viridis(option = "A", direction = -1) +
-  ggtitle("Ridge plot preu del diamant per tall")
+  ggtitle("Ridge plot preu contra tall")
 
 cut_median <- summarise(group_by(diamonds, cut), MD = median(price))
 
@@ -134,22 +146,21 @@ Curiosament, el tall `Fair` és el què millor mediana té, contràriament al qu
 []{#catcorrcolor}
 
 ```{r fig.cap="Imatge 4: Correlació amb el color"}
-#price vs color
-p1<- ggplot(diamonds, aes(x = price, y = color, fill = ..x..)) +
+p1 <- ggplot(diamonds, aes(x = price, y = color, fill = ..x..)) +
   geom_density_ridges_gradient(scale = 2, rel_min_height = 0.01) +
   scale_fill_viridis(option = "A", direction = -1) +
-  ggtitle("Ridge plot Price vs Color")
+  ggtitle("Ridge plot preu vs color")
 
 color_median <- summarise(group_by(diamonds, color), MD = median(price))
 
 p2 <- ggplot(diamonds) +geom_boxplot(aes(x = color, y = price, color = color)) +
-  ggtitle("Boxplot Price vs Color") +
+  ggtitle("Boxplot preu vs color") +
   geom_text(data = color_median, aes(color, MD, label = MD), position = position_dodge(width = 0.8), size = 3, vjust = -0.5)
 
 ggpubr::ggarrange(p1, p2, nrow = 1, ncol = 2)
 ```
 
-Aquí també tenim una sorpresa, hom pensaria que un diamant totalment transparent seria millor, però resulta que són més cars els que tenen una lleugera opacitat, continuen sent transparents, però menys que els del primer grup. El [Diamond Search Engine](https://www.diamondse.info/diamonds-color.asp) deia que els diamants transparents (`D`) eren els més rars, però si grafiquem la distribució per color [[Imatge 5](#districolor)], no sembla ser així en el nostre dataset.
+Aquí també tenim una sorpresa, hom pensaria que un diamant totalment transparent seria millor, però resulta que són més cars els que tenen una lleugera opacitat, continuen sent transparents, però menys que els del primer grup. El [Diamond Search Engine](https://www.diamondse.info/diamonds-color.asp) deia que els diamants transparents (`D`) eren els més rars, però si grafiquem la distribució per color [[Imatge 5](#districolor)], no és així en el nostre dataset.
 
 []{#districolor}
 
@@ -164,14 +175,17 @@ I finalment, si estudiem la claredat ([[Imatge 6](#catcorrclar)]), la claredat m
 []{#catcorrclar}
 
 ```{r fig.cap="Imatge 6: Correlació amb la claredat"}
-#price vs clarity
-p1<- ggplot(diamonds, aes(x = price, y = clarity, fill = ..x..)) +
+p1 <- ggplot(diamonds, aes(x = price, y = clarity, fill = ..x..)) +
   geom_density_ridges_gradient(scale = 2, rel_min_height = 0.01) +
-  scale_fill_viridis(option = "A", direction = -1) + ggtitle("Ridge plot Price vs Clarity")
+  scale_fill_viridis(option = "A", direction = -1) +
+  ggtitle("Ridge plot Preu vs Claredat")
+
 clarity_median <- summarise(group_by(diamonds, clarity), MD = median(price))
-p2 <- ggplot(diamonds) +geom_boxplot(aes(x = clarity, y = price, color = clarity)) + ggtitle("Boxplot Price vs Clarity") +
-  geom_text(data = clarity_median, aes(clarity, MD, label = MD),
-            position = position_dodge(width = 0.8), size = 3, vjust = -0.5)
+
+p2 <- ggplot(diamonds) +geom_boxplot(aes(x = clarity, y = price, color = clarity)) +
+  ggtitle("Boxplot Preu vs Claredat") +
+  geom_text(data = clarity_median, aes(clarity, MD, label = MD), position = position_dodge(width = 0.8), size = 3, vjust = -0.5)
+
 ggpubr::ggarrange(p1, p2, nrow = 1, ncol = 2)
 ```
 
@@ -179,7 +193,7 @@ ggpubr::ggarrange(p1, p2, nrow = 1, ncol = 2)
 
 Un cop feta l'exploració del dataset, podem passar a mirar de determinar quina de les variables és més rellevant per determinar el preu d'un diamant.
 
-Per a fer-ho, començarem per mirar d'encaixar una regressió lineal amb les dades i n'observarem la coincidència [[Imatge 7](#lm)].
+Per a fer-ho, començarem per encaixar una regressió lineal amb les dades i n'observarem la coincidència [[Imatge 7](#lm)].
 
 ### Linear modeling
 
@@ -201,7 +215,7 @@ lmMod <- lm(log(price) ~ log(carat), data=diamonds)
 summary(lmMod)
 ```
 
-Però el què ens interessa avaluar és la importància de cada variable per a saber millor de què depèn el preu i respondre la pregunta de la què hem partit en el nostre anàlisi. Per a fer-ho, ho passem per la funció `relaimpo` que ens mostra la importància relativa de cada variable [[Imatge 9](#relaimpo)].
+Però el què ens interessa avaluar és la importància de cada variable per a saber millor de què depèn el preu i respondre la pregunta de la què hem partit en el nostre anàlisi. Per a fer-ho, ho passem per la funció `relaimpo` que ens mostra la importància relativa de cada variable en la [[Imatge 9](#relaimpo)].
 
 []{#relaimpo}
 
@@ -210,7 +224,7 @@ lmMod <- lm(price~., data=diamonds)
 
 importance <- calc.relimp(lmMod, type = "lmg", rela = F)
 
-plot(importance)
+plot(importance, main="Importància de cada variable en la regressió contra preu")
 ```
 
 Ja podem veure que la tria de [la segona regressió](#lmlog), el `carat`, era una bona decisió car és la variable més rellevant en la regressió. El segueixen les variables dimensionals, que ja hem vist al principi que estan fortament correlacionades amb el pes, com és lògic.
@@ -325,4 +339,5 @@ Aquest resultat ens denota la importància de tenir bones estratègies de valida
 ## Conclusions (ara si)
 
 Hem pogut comprovar que la nostra conclusió anterior continua sent vàlida, però hauríem d'aprendre la lliçó més important de totes: vingui d'on vingui el dataset, **neteja les dades**. Encara caldria buscar dades impossibles (e.g. hi ha 20 diamants de mida 0) i per això cal també **entendre bé el dataset**. A partir d'aquí, podem treballar i treure bons models.
+
 
