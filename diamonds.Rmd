@@ -2,7 +2,7 @@
 
 ## Context
 
-`diamonds` és un datasaet del paquet ggplot2 que descriu 54000 diamants. Aquest és un dataset del 2008 fet per [Solomon](https://rpubs.com/anthonycerna/diamondspredictions), tot i que no he trobat massa informació sobre l'origen del dataset. La idea d'aquest informa és analitzar aquest dataset, veure quines features són més rellevants a l'hora de determinar el preu i mirar de fer algun model predictiu.
+`diamonds` és un conjunt de dades del paquet ggplot2 que descriu 54000 diamants. Tot i que no he trobat massa informació fefaent sobre l'origen, sembla que és un dataset del 2008 fet per [Solomon](https://rpubs.com/anthonycerna/diamondspredictions). En aquest informe l'analitzarem, veurem quines _features_ són més rellevants a l'hora de determinar el preu i mirarem de fer algun model predictiu.
 
 
 ```{r include = FALSE}
@@ -39,7 +39,7 @@ data(diamonds)
 
 ## Referències
 
-L'anàlisi del dataset ha seguit força els articles següents:
+L'anàlisi del dataset ha seguit força segments dels articles següents:
 
 - [Garg - Diamonds what determines their price](https://12ft.io/proxy?q=https%3A%2F%2Fmedium.com%2Fcodex%2Fdiamonds-what-determines-their-price-264a83c7f61a)
 - [Napitupulu - Diamonds' Analysis](http://napitupulu-jon.appspot.com/posts/diamonds-analysis.html)
@@ -52,7 +52,7 @@ En especial el segon i quart article. Recomanem que no llegiu l'article de Mayer
 
 ## Introducció
 
-En aquest informe primer farem un anàlisi del dataset `diamonds`, a continuació veurem quines variables són més importants per explicar el preu d'un diamant i finalment calcularem algun model de predicció
+En aquest informe primer farem un anàlisi del dataset `diamonds`, a continuació veurem quines variables són més importants per explicar el preu d'un diamant i finalment calcularem algun model de predicció. Per acabar, treurem alguna conclusió sobre el conjunt de dades i com l'hem analitzat.
 
 ## Anàlisi del dataset
 
@@ -64,13 +64,13 @@ glimpse(diamonds)
 
 D'entrada podem veure que el dataset té 10 característiques de les quals tres són categòriques i la majoria són quantitatives.
 
-La majoria podem endevinar a què fan referència. El color i el preu es refereixen al color del diamant i el preu de venta. Si explorem el color veiem que el rang de la variable és de D a J. Segons [Diamonds Search Engine](https://www.diamondse.info/diamonds-color.asp), la D és sense color i la J és el rang més opac dels que no tenen color.
+La majoria podem endevinar a què fan referència. El color i el preu es refereixen al color del diamant i el preu de venta. Si explorem el color veiem que el rang de la variable és de D a J. Segons [Diamonds Search Engine](https://www.diamondse.info/diamonds-color.asp), la D és sense color i la J és el rang més opac dels transparents que no tenen color.
 
-El tall és una variable categòrica describint la qualitat del tall i la claredat també. Els millors talls fan diamants més simètrics i lluminosos, mentre que la claredat es veu influenciada per microescletxes i imperfeccions del diamant, i per tant, com menys imperfeccions tenim millor és la claredat (`IF`) i viceversa (`I1`) ([Claredat](https://www.diamondse.info/diamonds-clarity.asp)).
+El tall és una variable categòrica descrivint la qualitat del tall, i la claredat, també. Els millors talls fan diamants més simètrics i lluminosos, mentre que la claredat es veu influenciada per micro escletxes i imperfeccions del diamant. Per tant, com menys imperfeccions tenim, millor és la claredat (`IF`) i viceversa (`I1`) ([Claredat](https://www.diamondse.info/diamonds-clarity.asp)).
 
-Pel què fa a les dimensions, tenim x, y, z, table, depth i carat. x, y i z són les dimensions màximes/externes del diamant i taula i profunditat les mínimes/internes. La [imatge 1](#dimensions) il·lustra bé les dimensions.
+Pel què fa a les dimensions, tenim `x`, `y`, `z`, `table`, `depth` i `carat`. `x`, `y` i `z` són les dimensions màximes/externes del diamant i _taula_ i _profunditat_ les mínimes/internes. La [imatge 1](#dimensions) iŀlustra bé les dimensions.
 
-Finalment el pes d'un diamant es mesura en carats.
+Finalment el pes d'un diamant es mesura en _carats_.
 
 []{#dimensions}
 
@@ -78,7 +78,7 @@ Finalment el pes d'un diamant es mesura en carats.
 ![Imatge 1: Explicació de les dimensions d'un diamant](https://raw.githubusercontent.com/polmonso/bigdata/master/images/diamonds.png)
 </center>
 
-La variable que més estudiarem serà la del preu. De quines variables depèn més? Quines són poc rellevants? D'entrada podem fer una ullada a la distribució d'aquest preu [[Imatge 1](#distribucio)] i observar que la majoria de diamants es venen per menys de dos mil dòlars i que per sobre de cinc mil tenim una cua exponencialment decreixent amb poca freqüència que s'allarga fins a 18000 US$. En general la corba és exponencial decreixent amb un petit *plateau* de dos mil a cinc mil.
+La variable que més estudiarem serà la del preu. De quines variables depèn més? Quines són poc rellevants? D'entrada podem fer una ullada a la distribució d'aquest preu [[Imatge 1](#distribucio)] i observar que la majoria de diamants es venen per menys de dos mil dòlars. Per sobre de cinc mil tenim una cua exponencial decreixent amb poca freqüència que s'allarga fins a 18000 US$. En general la corba és exponencial decreixent amb un petit *plateau* de dos mil a cinc mil.
 
 []{#distribucio}
 
@@ -86,13 +86,13 @@ La variable que més estudiarem serà la del preu. De quines variables depèn m�
 ggplot(diamonds) + geom_histogram(aes(x = price)) + xlab("Preu del Diamant [US$]") + ylab("Freqüència")
 ```
 
-Aquesta distribució tant esbiaixada fa que la mitjana i la mediana singuin molt diferents (3962.8 i 2401 respectivament), fent de la mediana més representativa de la centralitat de les valors.
+Aquesta distribució tant esbiaixada fa que la mitjana i la mediana siguin molt diferents (3962.8 i 2401 respectivament), fent de la mediana una mesura més representativa de la centralitzat de les valors.
 
 ## Creuament de dades
 
 ### Variables númeriques
 
-Un cop ja hem fet una ullada a la distribució del preu i tenim una idea del què podem esperar podem explorar la correlació entre les variables que composen el dataset. Com més correlades estiguin més grans ens sortiran els cercles del gràfic de correlació [[Imatge 2](#correlacio)]. Això ens permetrà tenir una idea de quines variables númeriques són les més rellevants en determinar el preu.
+Un cop ja hem fet una ullada a la distribució del preu i tenim una idea del què podem esperar podem explorar la correlació entre les variables que composen el dataset. Com més correlades estiguin més grans ens sortiran els cercles del gràfic de correlació [[Imatge 2](#correlacio)]. Això ens permetrà tenir una idea de quines variables numèriques són les més rellevants en determinar el preu.
 
 []{#correlacio}
 
@@ -101,15 +101,15 @@ num.Cols <- diamonds[,sapply(diamonds,is.numeric)]
 corrplot(cor(num.Cols), method = "circle", type = "upper", addCoef.col = "black")
 ```
 
-D'entrada ja podem veure que preu està fortament correlat amb les dimensions (x, y, z) i sobretot els carats. No és sorprenent que com més gran sigui el diamant, més car sigui, i també podem veure que més volum implica més carats de pes.
+D'entrada ja podem veure que preu està fortament correlat amb les dimensions (x, y, z) i sobretot amb els carats. No és sorprenent que com més gran sigui el diamant, més car sigui, i també podem veure que més volum implica més carats de pes.
 
-Una altra conclusió que podem treure, tot i que no correlaciona amb el preu, és que a major profunditat, menys taula té el diamant.
+Una altra conclusió que podem treure, tot i que no correlaciona amb el preu, és que a major profunditat, menys taula té el diamant. Com que aquestes variables no correlacionen gaire amb el preu, en principi no caldrà estudiar-les gaire.
 
 ### Variables categòriques
 
-Les variables categòriques són les que resultaran més interessants donat que llur correlació amb el preu és menys evident. El que farem per anàlitzar el tall, el color i la claredat és mostrar la distribució del preu per a cada valor de variable categòrica [[Imatge 3](#catcorr)].
+Les variables categòriques són les que resultaran més interessants donat que llur correlació amb el preu és menys evident. El que farem per analitzar el tall, el color i la claredat és mostrar la distribució del preu per a cada valor de variable categòrica [[Imatge 3](#catcorr)].
 
-Per a fer-ho dibuixarem la distribució del preu condicionada per la variable categòrica i també el diagrama de caixes per veure la mediana, els quantils i els valors més extrems (que, amb la distribució dels preus de l'anàlisi preliminar, ja podem anticipar que seràn a la part més cara del gràfic).
+Per a fer-ho dibuixarem la distribució del preu condicionada per la variable categòrica i també el diagrama de caixes per veure la mediana, els quantils i els valors més extrems (que, amb la distribució dels preus de l'anàlisi preliminar, ja podem anticipar que seran a la part més cara del gràfic).
 
 []{#catcorr}
 
@@ -149,7 +149,7 @@ p2 <- ggplot(diamonds) +geom_boxplot(aes(x = color, y = price, color = color)) +
 ggpubr::ggarrange(p1, p2, nrow = 1, ncol = 2)
 ```
 
-Aquí també tenim una sorpresa, hom pensaria que un diamant totalment transparent seria millor, però resulta que són més cars els que tenen una lleugera opacitat, tot i ser transparents. El [Diamond Search Engine](https://www.diamondse.info/diamonds-color.asp) deia que els diamands transparents (`D`) eren els més rars, però si fem un plot de la distribució per color [[Imatge 5](#districolor)], no sembla ser així en el nostre dataset.
+Aquí també tenim una sorpresa, hom pensaria que un diamant totalment transparent seria millor, però resulta que són més cars els que tenen una lleugera opacitat, continuen sent transparents, però menys que els del primer grup. El [Diamond Search Engine](https://www.diamondse.info/diamonds-color.asp) deia que els diamants transparents (`D`) eren els més rars, però si grafiquem la distribució per color [[Imatge 5](#districolor)], no sembla ser així en el nostre dataset.
 
 []{#districolor}
 
@@ -190,7 +190,7 @@ lmMod <- lm(price~., data=diamonds)
 summary(lmMod)
 ```
 
-Aquest senzill model de regressió lineal explica el ~91% del preu basant-se en les altres variables. Dit d'una altra manera, donades unes dimensions, claredat, etc. si ho multipliquem per l'estimació dels coeficients resultat de la regressió i hi sumem l'intercept, tindrem una estimació del preu que tindria aquell hipotètic diamant.
+Aquest senzill model de regressió lineal explica el ~91% del preu basant-se en les altres variables. Dit d'una altra manera, donades unes dimensions, claredat, etc. si ho multipliquem per l'estimació dels coeficients resultat de la regressió i hi sumem l'_intercept_, tindrem una estimació del preu que tindria aquell hipotètic diamant.
 
 També podríem mirar de millorar la regressió a partir de _least squares_ i seleccionar variables [[Imatge 8](#lmlog)], o bé mirar de quadrar un model bayesià com `stan_glm` del paquet `rstanarm`.
 
@@ -201,7 +201,7 @@ lmMod <- lm(log(price) ~ log(carat), data=diamonds)
 summary(lmMod)
 ```
 
-Però el què ens interessa evaluar és la importància de cada variable per a saber millor de què depèn el preu i respondre la pregunta de la què hem partit en el nostre anàlisi. Per a fer-ho ho passem per la funció `relaimpo` que ens mostra que la importància relativa de cada variable [[Imatge 9](#relaimpo)].
+Però el què ens interessa avaluar és la importància de cada variable per a saber millor de què depèn el preu i respondre la pregunta de la què hem partit en el nostre anàlisi. Per a fer-ho, ho passem per la funció `relaimpo` que ens mostra la importància relativa de cada variable [[Imatge 9](#relaimpo)].
 
 []{#relaimpo}
 
@@ -213,11 +213,13 @@ importance <- calc.relimp(lmMod, type = "lmg", rela = F)
 plot(importance)
 ```
 
-Ja podem veure que la tria de la segona regressió, el `carat`, era una bona decisió car és la variable més rellevant en la regressió. Seguida de les variables dimensionals, que ja hem vist al principi que estan fortament correlacionades amb el pes, com és lògic.
+Ja podem veure que la tria de [la segona regressió](#lmlog), el `carat`, era una bona decisió car és la variable més rellevant en la regressió. El segueixen les variables dimensionals, que ja hem vist al principi que estan fortament correlacionades amb el pes, com és lògic.
 
 ### RMSE d'un random forest
 
-La regressió lineal clàssica no deixa de ser un model senzill i podríem provar-ne de més avançats. Un model que podríem calcular és el de _random forest_, un model basat en arbres de decisió. La funció que utilitzarem (`ranger`) està composada de 500, per defecte. A continuació en calculem el model i l'error quadràtic mig (RMSE) del logaritme del preu contra les variables categòriques i el carat, que hem vist anteriorment que representa les altres dimensions.
+La regressió lineal clàssica no deixa de ser un model senzill i podríem provar-ne de més avançats. Un model que podríem calcular és el de _random forest_, un model basat en arbres de decisió. La funció que utilitzarem (`ranger`) està composada de 500, per defecte.
+
+A continuació en calculem el model i l'error quadràtic mig (RMSE) del logaritme del preu contra les variables categòriques i el carat, que hem vist anteriorment que representa les altres dimensions. A més a més, farem la validació creuada mitja de cinc particions de les dades per a tenir una millor estimació de la qualitat del model.
 
 ```{r, echo=TRUE}
 set.seed(8325)
@@ -241,13 +243,13 @@ fitavg <- rowMeans(sapply(folds, fit_on_fold, data = diamondsid))
 fitavg
 ```
 
-El model ens explica un 99% del dataset i té un rmse de 0.10. Millor que abans, tot i que fins i tot sona massa bé per ser veritat, però pot ser que realment aquest sigui un model ideal pel cas que ens ocupa.
+El model ens explica un 99% del dataset i té un rmse de 0.10. Millor que abans, i fins i tot sona massa bé per ser veritat, però pot ser que realment aquest sigui un model ideal pel cas que ens ocupa. Amb aquest model, podríem predir el preu de mercat del diamant en el context del conjunt de dades, que molt probablement necessitaria ajustaments o conjunts de dades més recents per a ser aplicat avui.
 
 ## Conclusions
 
-Després d'aquest anàlisi, podem concloure que la variable que més importa a l'hora de determinar el preu del diamant és el seu pes, així que és manté aquella imatge de les pel·lícules de voler oferir [un diamant ben gros ben gros](https://youtu.be/bfsnebJd-BI?t=136).
+Després d'aquest anàlisi, podem concloure que la variable que més importa a l'hora de determinar el preu del diamant és el seu pe. Hem après què valorar i què mirar si mai hem de triar un diamant. Segons aquest conjunt de dades, es manté la imatge de les peŀlícules de voler oferir [un diamant ben gros ben gros](https://youtu.be/bfsnebJd-BI?t=136).
 
-I doncs, **ja hem acabat?** Ja hauríem acabat si no fos pel resultat següent; agrupar el dataset per les seves variables categòriques, el carat i el preu [[Image 11](#dupes)].
+I doncs, **ja hem acabat?** Semblaria que si, i ja hauríem acabat si no fos pel resultat següent; agrupar el dataset per les seves variables categòriques, el carat i el preu dóna el resultat de la [[Image 11](#dupes)].
 
 []{#dupes}
 
@@ -267,17 +269,17 @@ dupes = 1 - max(dia$id) / nrow(dia)  # 0.26
 pie(c(dupes, 1 - dupes), labels = c('duplicats', 'únics'), main="Proporció de duplicats")
 ```
 
-Resulta que agafant aquestes variables, una quarta part del dataset té repetits! Podria ser casualitat, que per algun motiu desconegut diamants de dimensions diferents _ceteris paribus_ tingués el mateix preu, però ens hauria de fer desconfiar. Sense anar més lluny, hi ha un diamant de 2.01 carats en què l'únic que canvia són les dimensions i es va vendre pel mateix preu sis vegades, no serà el mateix diamant venut sis vegades?
+Resulta que agrupant les dades per les variables categòriques, el pes i el preu, una quarta part del dataset té repetits! Podria ser casualitat, que, per algun motiu desconegut, diamants de dimensions diferents _ceteris paribus_ tinguessin el mateix preu, però ens hauria de fer desconfiar. Sense anar més lluny, hi ha un diamant de 2.01 carats en què l'únic que canvia són les dimensions i es va vendre pel mateix preu sis vegades, no serà el mateix diamant venut sis vegades?
 
-Aquesta revelació podria potencialment invalidar tot l'anàlisi! Si tenim dades agrupades, el _random forests_ podria estar memoritzant aquests casos duplicats i quan n'evaluem l'error de manera aleatòria, estaríem treient una conclusió més optimista de la realitat i, en conseqüència, un model pitjor del què treuriem si netegéssim les dades.
+Aquesta revelació podria potencialment invalidar tot l'anàlisi! Si tenim dades agrupades, el _random forests_ podria estar memoritzant aquests casos duplicats i quan n'avaluem l'error de manera aleatòria, estaríem treien una conclusió més optimista de la realitat i, en conseqüència, un model pitjor del què treuriem si netegéssim les dades.
 
-A continuació n'evaluem l'impacte i comentarem maneres de superar el problema.
+A continuació n'avaluem l'impacte i comentarem maneres de superar el problema.
 
 ## Com superar el problema
 
 **Avaluació de l'impacte**
 
-El què farem és repetir vàries vegades particions del nostre dataset (validació creuada) utilitzant dues tècniques diferents: bàsica i agrupada. En la variant agrupada, assegurem que les files del mateix grup cauen en un mateix plec, evitant així la tendència a recompensar el sobreajustament d'aquestes estratègies de validació. La bàsica és la que ja hem fet abans.
+Com abans, el què farem és repetir vàries vegades particions del nostre dataset (validació creuada) però ara utilitzant dues tècniques diferents: bàsica i agrupada. En la variant agrupada, assegurem que les files del mateix grup cauen en un mateix plec, evitant així la tendència a recompensar el sobreajustament d'aquestes estratègies de validació. La bàsica és la que ja hem fet abans.
 
 [](#impact)
 
@@ -316,7 +318,7 @@ results <- sapply(c("basic", "grouped"), cross_validate, data = dia)
 barplot(results, col = "orange", ylab = "RMSE via validació creuada 5-fold")
 ```
 
-A la [[Imatge 12](#impact)] veiem com en una evaluació naïf de l'error creuriem que el nostre model explica la variable observada un 1% millor que no pas si ho evaluem amb una estratègia robusta. Això és un error relatiu considerable, de gairebé un 10%.
+A la [[Imatge 12](#impact)] veiem com, en una avaluació naïf de l'error, creuríem que el nostre model explica la variable observada un 1% millor que no pas si ho avaluem amb una estratègia robusta. Això és un error relatiu considerable, de gairebé un 10%.
 
 Aquest resultat ens denota la importància de tenir bones estratègies de validació, sinó, podríem estar donant resultats incorrectes i no ho sabríem.
 
